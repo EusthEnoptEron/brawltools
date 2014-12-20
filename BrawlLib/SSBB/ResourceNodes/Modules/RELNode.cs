@@ -260,7 +260,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                         if (link._type == RELLinkType.MrkRef)
                         {
-                            Console.WriteLine("Mark Ref");
+                            Helpers.DbgPrint("Mark Ref");
                             continue;
                         }
 

@@ -680,12 +680,12 @@ namespace System.Windows.Forms
             if (_type == 0)
                 chkLoopEnable.Checked = true;
 
-            UpdateTimeDisplay();
+            UpDateTimeDisplay();
 
             return true;
         }
 
-        private void UpdateTimeDisplay()
+        private void UpDateTimeDisplay()
         {
             if (_sourceStream != null)
             {
@@ -766,7 +766,7 @@ namespace System.Windows.Forms
         }
 
         private void btnRewind_Click(object sender, EventArgs e) { Seek(0); }
-        private void customTrackBar1_ValueChanged(object sender, EventArgs e) { UpdateTimeDisplay(); }
+        private void customTrackBar1_ValueChanged(object sender, EventArgs e) { UpDateTimeDisplay(); }
         private void customTrackBar1_UserSeek(object sender, EventArgs e) { Seek(customTrackBar1.Value); }
 
         private void pnlLoopStart_SizeChanged(object sender, EventArgs e)

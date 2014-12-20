@@ -501,7 +501,7 @@ namespace System.Windows.Forms
                                         / (plane.PointLeft._x - plane.PointRight._x);
                                     float b = plane.PointRight._y - m * plane.PointRight._x;
                                     float y_target = m * x + b;
-                                    Console.WriteLine(y_target);
+                                    Helpers.DbgPrint(y_target.ToString());
                                     if (Math.Abs(y_target - v2._y) <= Math.Abs(y_result - v2._y)) {
                                         y_result = y_target;
                                     }

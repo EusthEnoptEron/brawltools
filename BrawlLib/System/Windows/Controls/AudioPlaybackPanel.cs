@@ -354,12 +354,12 @@ namespace System.Windows.Forms
             trackBarPosition.TickStyle = TickStyle.BottomRight;
 
             if (_targetStream.Frequency > 0)
-                UpdateTimeDisplay();
+                UpDateTimeDisplay();
 
             Enabled = _targetStream.Samples > 0;
         }
 
-        private void UpdateTimeDisplay()
+        private void UpDateTimeDisplay()
         {
             if (_targetStream == null) return;
             DateTime t = new DateTime((long)trackBarPosition.Value * 10000000 / _targetStream.Frequency);
@@ -454,7 +454,7 @@ namespace System.Windows.Forms
         }
 
         private void btnRewind_Click(object sender, EventArgs e) { Seek(0); }
-        private void trackBar1_ValueChanged(object sender, EventArgs e) { UpdateTimeDisplay(); }
+        private void trackBar1_ValueChanged(object sender, EventArgs e) { UpDateTimeDisplay(); }
         private void trackBar1_UserSeek(object sender, EventArgs e) { Seek(trackBarPosition.Value); }
 
         int _targetIndex = 0;

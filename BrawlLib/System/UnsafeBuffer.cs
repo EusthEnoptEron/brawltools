@@ -27,7 +27,7 @@ namespace System
                     GC.SuppressFinalize(this);
                 }
             }
-            catch (Exception e) { Console.WriteLine(e.ToString()); }
+            catch (Exception e) { Helpers.DbgPrint(e.Message); }
         }
     }
 }

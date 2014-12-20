@@ -26,6 +26,7 @@ namespace BrawlBox
 {
     public partial class MainForm : Form
     {
+
         private static MainForm _instance;
         public static MainForm Instance { get { return _instance == null ? _instance = new MainForm() : _instance; } }
 
@@ -63,9 +64,13 @@ namespace BrawlBox
             Text = Program.AssemblyTitle;
             if (CheckUpdatesOnStartup)
                 CheckUpdates();
-//#if _DEBUG
-//            Text += " - DEBUG";
-//#endif
+
+            if (Program.Debug)
+            {
+                Program.AllocConsole();
+                Console.Title = Program.AssemblyTitle + " - Debug Log";
+            }
+
             soundPackControl1._grid = propertyGrid1;
             soundPackControl1.lstSets.SmallImageList = ResourceTree.Images;
             msBinEditor1.Dock =
@@ -94,6 +99,8 @@ namespace BrawlBox
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
 
             _displayPropertyDescription = BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable;
+
+
         }
 
         private delegate bool DelegateOpenFile(String s);
@@ -163,9 +170,9 @@ namespace BrawlBox
             else
                 Text = Program.AssemblyTitle;
 
-//#if DEBUG
-//            Text += " - DEBUG";
-//#endif
+#if DEBUG
+            Text += " - DEBUG";
+#endif
         }
 
         public void TargetResource(ResourceNode n)

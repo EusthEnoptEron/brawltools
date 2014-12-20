@@ -216,6 +216,31 @@ namespace System
 
             return str;
         }
+
+        // Debug printing to an attached console
+        public static void DbgPrint(string Output)
+        {
+            DbgPrint(ConsoleColor.Gray, Output);
+        }
+        public static void DbgPrint(string Output, string Category)
+        {
+            DbgPrint(ConsoleColor.Gray, Output, Category);
+        }
+        public static void DbgPrint(ConsoleColor color, string Output)
+        {
+            DbgPrint(color, Output, String.Empty);
+        }
+        public static void DbgPrint(ConsoleColor color, string Output, string Catagory)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("[{0}] ", DateTime.Now.ToLongTimeString());
+            Console.ForegroundColor = color;
+            if (Catagory != string.Empty)
+                Console.Write(String.Format("{0} -- {1}\n", Output, Catagory));
+            else
+                Console.Write(Output + "\n");
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
     }
 
     public class ReferenceEqualityComparer : EqualityComparer<Object>

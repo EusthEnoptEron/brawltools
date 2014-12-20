@@ -8,11 +8,17 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
 using System.Diagnostics;
 using BrawlLib;
+using System.Runtime.InteropServices;
 
 namespace BrawlBox
 {
     static class Program
     {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AllocConsole();
+
+        public static bool Debug = false;
         public static readonly string AssemblyTitle;
         public static readonly string AssemblyDescription;
         public static readonly string AssemblyCopyright;
@@ -48,10 +54,10 @@ namespace BrawlBox
         {
             try
             {
-                if (args.Length >= 1)
+                if (args.Length >= 1 && (args[0] != "/d" && args[0] != "-d"))
                     Open(args[0]);
 
-                if (args.Length >= 2)
+                if (args.Length >= 2 && (args[1] != "/d" && args[1] != "-d"))
                 {
                     ResourceNode target = ResourceNode.FindNode(RootNode, args[1], true);
                     if (target != null)
@@ -59,7 +65,10 @@ namespace BrawlBox
                     else
                         Say(String.Format("Error: Unable to find node or path '{0}'!", args[1]));
                 }
-                
+
+                    foreach (string s in args)
+                        Debug = (s == "-d" || s == "/d");
+
                 Application.Run(MainForm.Instance);
             }
             catch (FileNotFoundException x)

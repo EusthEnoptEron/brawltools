@@ -191,13 +191,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                     break;
 
                 case RELCommandType.SetBranchDestination: //0xA
-                    Console.WriteLine("SetBranchDestination");
+                    Helpers.DbgPrint("SetBranchDestination");
                     break;
 
                 case RELCommandType.SetBranchConditionDestination1: //0xB
                 case RELCommandType.SetBranchConditionDestination2: //0xC
                 case RELCommandType.SetBranchConditionDestination3: //0xD
-                    Console.WriteLine("SetBranchConditionDestination" + ((int)(_command - RELCommandType.SetBranchConditionDestination1)).ToString());
+                    Helpers.DbgPrint("SetBranchConditionDestination" + ((int)(_command - RELCommandType.SetBranchConditionDestination1)).ToString());
                     break;
 
                 default:

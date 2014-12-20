@@ -148,7 +148,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
 
             try
@@ -159,7 +159,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
 
             try
@@ -170,7 +170,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
 
             try
@@ -181,7 +181,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
 
             try
@@ -192,7 +192,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
         }
 
@@ -250,7 +250,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
 
             try
@@ -268,7 +268,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
 
             try
@@ -288,7 +288,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
 
             try
@@ -301,7 +301,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
 
             try
@@ -312,7 +312,7 @@ namespace DequeTest
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.DbgPrint(ex.Message);
             }
         }
     }

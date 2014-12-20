@@ -181,6 +181,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (PropertyChanged != null)
                 PropertyChanged(this);
+            Helpers.DbgPrint(ConsoleColor.Yellow, String.Format("{0} has changed", TreePathAbsolute));
             _changed = true;
         }
 

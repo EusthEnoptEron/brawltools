@@ -25,9 +25,8 @@ namespace BrawlLib.IO
                 _baseStream.Dispose();
                 _baseStream = null;
             }
-//#if DEBUG
-//            Console.WriteLine("Closing file map: {0}", _path);
-//#endif
+
+            Helpers.DbgPrint(String.Format("Closing file map: {0}", _path));
             GC.SuppressFinalize(this); 
         }
 
@@ -68,6 +67,10 @@ namespace BrawlLib.IO
             if (length == 0)
                 length = (int)stream.Length;
 
+
+            Helpers.DbgPrint(String.Format("Opening file map: {0}", stream.Name));
+
+
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
@@ -76,15 +79,16 @@ namespace BrawlLib.IO
                     return new cFileMap(stream, prot, offset, length) { _path = stream.Name };
             }
 
-//#if DEBUG
-//            Console.WriteLine("Opening file map: {0}", stream.Name);
-//#endif
+
         }
 
         public static FileMap FromStreamInternal(FileStream stream, FileMapProtect prot, int offset, int length)
         {
             if (length == 0)
                 length = (int)stream.Length;
+
+            Helpers.DbgPrint(String.Format("Opening file map: {0}", stream.Name));
+
 
             switch (Environment.OSVersion.Platform)
             {
@@ -93,10 +97,8 @@ namespace BrawlLib.IO
                 default:
                     return new cFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
             }
-            
-//#if DEBUG
-//            Console.WriteLine("Opening file map: {0}", stream.Name);
-//#endif
+
+
             
         }
 

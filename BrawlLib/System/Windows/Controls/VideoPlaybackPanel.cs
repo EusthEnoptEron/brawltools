@@ -232,12 +232,12 @@ namespace System.Windows.Forms
             trackBar1.TickStyle = TickStyle.BottomRight;
 
             if (_targetSource.FrameRate > 0)
-                UpdateTimeDisplay();
+                UpDateTimeDisplay();
 
             Enabled = _targetSource.NumFrames > 0;
         }
 
-        private void UpdateTimeDisplay()
+        private void UpDateTimeDisplay()
         {
             if (_targetSource == null) return;
             _frame = trackBar1.Value;
@@ -331,7 +331,7 @@ namespace System.Windows.Forms
         }
 
         private void btnRewind_Click(object sender, EventArgs e) { Seek(0); }
-        private void trackBar1_ValueChanged(object sender, EventArgs e) { UpdateTimeDisplay(); }
+        private void trackBar1_ValueChanged(object sender, EventArgs e) { UpDateTimeDisplay(); }
         private void trackBar1_UserSeek(object sender, EventArgs e) { Seek(trackBar1.Value); }
     }
 }

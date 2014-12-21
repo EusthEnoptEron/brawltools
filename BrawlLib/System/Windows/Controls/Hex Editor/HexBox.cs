@@ -2571,7 +2571,7 @@ namespace Be.Windows.Forms
         {
             foreColor = r.Linked.Count > 0 ? RelocationBrush : foreColor;
 
-            bool branch = (r._section.HasCode && r.Code is PPCBranch && _sectionEditor.highlightBlr.Checked);
+            bool branch = (r._section.HasCode && r.Code is PPCblr && _sectionEditor.highlightBlr.Checked);
             bool cmd = r.Command != null && ((r.Command.IsHalf && remainder > 1) || (!r.Command.IsHalf));
 
             if (_sectionEditor._section.HasCode)

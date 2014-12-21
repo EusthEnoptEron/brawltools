@@ -279,7 +279,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _redirectIndex = 0;
 
                 if (_name == null)
+                {
                     _name = GetName();
+                    Helpers.DbgPrint("Sucessfully initialized: -> " + _name);
+                }
             }
             else if (parent != null && !(parent is FileScanNode))
             {
@@ -296,10 +299,18 @@ namespace BrawlLib.SSBB.ResourceNodes
                         _name = "Redirect → " + _redirectIndex;
                     }
                     else
+                    {
                         _name = GetName();
+                        Helpers.DbgPrint("Sucessfully initialized: -> " + _name);
+                    }
             }
             else if (_name == null)
+            {
                 _name = Path.GetFileName(_origPath);
+                Helpers.DbgPrint("Sucessfully initialized: -> " + _name);
+            }
+
+ 
         }
 
         //public override unsafe void Export(string outPath)

@@ -18,9 +18,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         ModuleSectionNode[] Sections { get { return (_parentRelocation._section.Root as ModuleNode).Sections; } }
 
         [Category("Relocation Command"), Browsable(false)]
-        public bool IsBranchSet { get { return (_command >= RELCommandType.SetBranchDestination && _command <= RELCommandType.SetBranchConditionDestination3); } }
+        public bool IsBranchSet { get { return (_command >= RELCommandType.SetBranchDestination && _command <= RELCommandType.SetConditionalBranchDestination3); } }
         [Category("Relocation Command"), Browsable(false)]
-        public bool IsHalf { get { return (_command >= RELCommandType.WriteLowerHalf1 && _command <= RELCommandType.WriteUpperHalfandBit1); } }
+        public bool IsHalf { get { return (_command >= RELCommandType.WriteHalfWord && _command <= RELCommandType.WriteUpperHalfandBit1); } }
 
         [Category("Relocation Command"), Description("The offset relative to the start of the target section.")]
         public string TargetOffset 
@@ -167,8 +167,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     newValue |= (addend & 0x03FFFFFC);
                     break;
 
-                case RELCommandType.WriteLowerHalf1: //0x3
-                case RELCommandType.WriteLowerHalf2: //0x4
+                case RELCommandType.WriteHalfWord: //0x3
+                case RELCommandType.WriteLowerHalf: //0x4
                     newValue &= 0xFFFF0000;
                     newValue |= (ushort)(addend & 0xFFFF);
                     break;
@@ -183,9 +183,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     newValue |= (ushort)((addend >> 16) | (addend & 0x1));
                     break;
 
-                case RELCommandType.SetBranchConditionOffset1: //0x7
-                case RELCommandType.SetBranchConditionOffset2: //0x8
-                case RELCommandType.SetBranchConditionOffset3: //0x9
+                case RELCommandType.SetConditionalBranchOffset1: //0x7
+                case RELCommandType.SetConditionalBranchOffset2: //0x8
+                case RELCommandType.SetConditionalBranchOffset3: //0x9
                     newValue &= 0xFFFF0003;
                     newValue |= (addend & 0xFFFC);
                     break;
@@ -194,10 +194,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                     Helpers.DbgPrint("SetBranchDestination");
                     break;
 
-                case RELCommandType.SetBranchConditionDestination1: //0xB
-                case RELCommandType.SetBranchConditionDestination2: //0xC
-                case RELCommandType.SetBranchConditionDestination3: //0xD
-                    Helpers.DbgPrint("SetBranchConditionDestination" + ((int)(_command - RELCommandType.SetBranchConditionDestination1)).ToString());
+                case RELCommandType.SetConditionalBranchDestination1: //0xB
+                case RELCommandType.SetConditionalBranchDestination2: //0xC
+                case RELCommandType.SetConditionalBranchDestination3: //0xD
+                    Helpers.DbgPrint("SetConditionalBranchDestination" + ((int)(_command - RELCommandType.SetConditionalBranchDestination1)).ToString());
                     break;
 
                 default:
@@ -212,16 +212,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         Nop = 0x0,
         WriteWord = 0x1,
         SetBranchOffset = 0x2,
-        WriteLowerHalf1 = 0x3,
-        WriteLowerHalf2 = 0x4,
+        WriteHalfWord = 0x3,
+        WriteLowerHalf = 0x4,
         WriteUpperHalf = 0x5,
         WriteUpperHalfandBit1 = 0x6,
-        SetBranchConditionOffset1 = 0x7,
-        SetBranchConditionOffset2 = 0x8,
-        SetBranchConditionOffset3 = 0x9,
+        SetConditionalBranchOffset1 = 0x7,
+        SetConditionalBranchOffset2 = 0x8,
+        SetConditionalBranchOffset3 = 0x9,
         SetBranchDestination = 0xA,
-        SetBranchConditionDestination1 = 0xB,
-        SetBranchConditionDestination2 = 0xC,
-        SetBranchConditionDestination3 = 0xD,
+        SetConditionalBranchDestination1 = 0xB,
+        SetConditionalBranchDestination2 = 0xC,
+        SetConditionalBranchDestination3 = 0xD,
+        IncrementOffset = 0xC9, //Previous offset can only reach 0xFFFF. This command resets it
+        Section = 0xCA, //Sets the section to be modified by all following commands
+        End = 0xCB,
+        MrkRef = 0xCC
     }
 }

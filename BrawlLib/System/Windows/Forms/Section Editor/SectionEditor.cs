@@ -313,21 +313,13 @@ namespace System.Windows.Forms
                         int startIndex = value._index, endIndex = value._index;
 
                         Relocation r = value;
-
-                        // A method almost certainly will never return to execute instructions
-                        // at this location if the branch is not linked, so should be treated
-                        // as the end of the method.
-                        while (r.Previous != null && !(r.Previous.Code is PPCblr ||
-                            (r.Previous.Code is PPCbx && ((PPCbx)r.Previous.Code).Link == false)))
+                        while (r.Previous != null && !(r.Previous.Code is PPCblr))
                             r = r.Previous;
 
                         startIndex = r._index;
 
                         r = value;
-
-                        // See above.
-                        while (!(r.Code is PPCblr ||
-                            (r.Code is PPCbx && ((PPCbx)r.Code).Link == false)) && r.Next != null)
+                        while (!(r.Code is PPCblr) && r.Next != null)
                             r = r.Next;
 
                         endIndex = r._index;

@@ -234,6 +234,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (type == _compression)
                         return;
 
+                    Helpers.DbgPrint(ConsoleColor.Yellow,String.Format("{0}'s compression changed from \"{1}\" to \"{2}\"", TreePathAbsolute, _compression, value));
+
                     if (Array.IndexOf(Compressor._supportedCompressionTypes, type) != -1)
                     {
                         _compression = type;
@@ -426,6 +428,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _children = new List<ResourceNode>();
 
             _replaced = false;
+
+            if (_name != null)
+                Helpers.DbgPrint("Sucessfully initialized: -> " + _name);
         }
         //Called when property values are requested. Allows node to cache values from source data.
         //Return true to indicate there are child nodes.

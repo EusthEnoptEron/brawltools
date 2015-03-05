@@ -1019,6 +1019,11 @@ namespace BrawlLib.Modeling
 
         private static unsafe void WriteBone(MDL0BoneNode bone, XmlWriter writer)
         {
+            WriteBone(bone, false, writer);
+        }
+
+        private static unsafe void WriteBone(MDL0BoneNode bone, bool forAnimation, XmlWriter writer)
+        {
             writer.WriteStartElement("node");
             writer.WriteAttributeString("id", bone.Name);
             writer.WriteAttributeString("name", bone._name);
@@ -1029,9 +1034,10 @@ namespace BrawlLib.Modeling
             //writer.WriteString(WriteMatrix(bone._bindState._transform));
             //writer.WriteEndElement(); //matrix
 
-            if (bone._bindState._translate != new Vector3())
+            if (forAnimation || bone._bindState._translate != new Vector3())
             {
                 writer.WriteStartElement("translate");
+                writer.WriteAttributeString("sid", "translate");
                 writer.WriteString(
                     bone._bindState._translate._x.ToString(CultureInfo.InvariantCulture.NumberFormat) + " " +
                     bone._bindState._translate._y.ToString(CultureInfo.InvariantCulture.NumberFormat) + " " +
@@ -1039,30 +1045,34 @@ namespace BrawlLib.Modeling
                 writer.WriteEndElement(); //translate
             }
 
-            if (bone._bindState._rotate._z != 0)
+            if (forAnimation || bone._bindState._rotate._z != 0)
             {
                 writer.WriteStartElement("rotate");
+                writer.WriteAttributeString("sid", "rotateZ");
                 writer.WriteString("0 0 1 " +
                     bone._bindState._rotate._z.ToString(CultureInfo.InvariantCulture.NumberFormat));
                 writer.WriteEndElement(); //rotate
             }
-            if (bone._bindState._rotate._y != 0)
+            if (forAnimation || bone._bindState._rotate._y != 0)
             {
                 writer.WriteStartElement("rotate");
+                writer.WriteAttributeString("sid", "rotateY");
                 writer.WriteString("0 1 0 " +
                     bone._bindState._rotate._y.ToString(CultureInfo.InvariantCulture.NumberFormat));
                 writer.WriteEndElement(); //rotate
             }
-            if (bone._bindState._rotate._x != 0)
+            if (forAnimation || bone._bindState._rotate._x != 0)
             {
                 writer.WriteStartElement("rotate");
+                writer.WriteAttributeString("sid", "rotateX");
                 writer.WriteString("1 0 0 " +
                     bone._bindState._rotate._x.ToString(CultureInfo.InvariantCulture.NumberFormat));
                 writer.WriteEndElement(); //rotate
             }
-            if (bone._bindState._scale != new Vector3(1))
+            if (forAnimation || bone._bindState._scale != new Vector3(1))
             {
                 writer.WriteStartElement("scale");
+                writer.WriteAttributeString("sid", "scale");
                 writer.WriteString(
                     bone._bindState._scale._x.ToString(CultureInfo.InvariantCulture.NumberFormat) + " " +
                     bone._bindState._scale._y.ToString(CultureInfo.InvariantCulture.NumberFormat) + " " +
@@ -1440,6 +1450,387 @@ namespace BrawlLib.Modeling
                     }
                     writer.WriteEndElement(); //library_animations
                     writer.Close();
+                }
+            }
+        }
+
+
+        public static void WriteAnimation(CHR0Node animation, float fps, XmlWriter writer)
+        {
+            string[] types = new string[] { "scale", "rotate", "translate" };
+            string[] axes = new string[] { "X", "Y", "Z" };
+            bool first = true;
+
+            string animName = animation.Name;
+
+            writer.WriteStartElement("animation");
+            writer.WriteAttributeString("name", animName);
+            writer.WriteAttributeString("id", animName);
+            {
+                foreach (CHR0EntryNode en in animation.Children)
+                {
+                    string bone = en.Name;
+                    KeyframeCollection keyframes = en.Keyframes;
+
+                    for (int index = 0; index < 9; index++)
+                    {
+                        int keyFrameCount = keyframes._keyArrays[index]._keyCount;
+                        KeyframeEntry root = keyframes._keyArrays[index]._keyRoot;
+
+                        if (keyFrameCount <= 0)
+                            continue;
+
+                        string type = types[index / 3];
+                        string axis = axes[index % 3];
+
+                        string name = String.Format("{0}_{1}{2}", bone, type, axis);
+
+                        //writer.WriteStartElement("animation");
+                        //writer.WriteAttributeString("id", name);
+                        {
+                            #region Input source
+                            writer.WriteStartElement("source");
+                            writer.WriteAttributeString("id", name + "_input");
+                            {
+                                writer.WriteStartElement("float_array");
+                                writer.WriteAttributeString("id", name + "_inputArr");
+                                writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                {
+                                    first = true;
+                                    for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
+                                    {
+                                        if (first)
+                                            first = false;
+                                        else
+                                            writer.WriteString(" ");
+                                        writer.WriteString(((float)entry._index / fps).ToString(CultureInfo.InvariantCulture.NumberFormat));
+                                    }
+                                }
+                                writer.WriteEndElement(); //float_array
+
+                                writer.WriteStartElement("technique_common");
+                                {
+                                    writer.WriteStartElement("accessor");
+                                    writer.WriteAttributeString("source", "#" + name + "_inputArr");
+                                    writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                    writer.WriteAttributeString("stride", "1");
+                                    {
+                                        writer.WriteStartElement("param");
+                                        writer.WriteAttributeString("name", "TIME");
+                                        writer.WriteAttributeString("type", "float");
+                                        writer.WriteEndElement(); //param
+                                    }
+                                    writer.WriteEndElement(); //accessor
+                                }
+                                writer.WriteEndElement(); //technique_common
+
+                                writer.WriteStartElement("technique");
+                                writer.WriteAttributeString("profile", "MAYA");
+                                {
+                                    writer.WriteStartElement("pre_infinity");
+                                    writer.WriteString("CONSTANT");
+                                    writer.WriteEndElement(); //pre_infinity
+
+                                    writer.WriteStartElement("post_infinity");
+                                    writer.WriteString("CONSTANT");
+                                    writer.WriteEndElement(); //post_infinity
+                                }
+                                writer.WriteEndElement(); //technique
+                            }
+                            writer.WriteEndElement(); //source
+                            #endregion
+
+                            #region Output source
+                            writer.WriteStartElement("source");
+                            writer.WriteAttributeString("id", name + "_output");
+                            {
+                                writer.WriteStartElement("float_array");
+                                writer.WriteAttributeString("id", name + "_outputArr");
+                                writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                {
+                                    first = true;
+                                    for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
+                                    {
+                                        if (first)
+                                            first = false;
+                                        else
+                                            writer.WriteString(" ");
+                                        writer.WriteString(((float)entry._value).ToString(CultureInfo.InvariantCulture.NumberFormat));
+                                    }
+                                }
+                                writer.WriteEndElement(); //float_array
+
+                                writer.WriteStartElement("technique_common");
+                                {
+                                    writer.WriteStartElement("accessor");
+                                    writer.WriteAttributeString("source", "#" + name + "_outputArr");
+                                    writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                    writer.WriteAttributeString("stride", "1");
+                                    {
+                                        writer.WriteStartElement("param");
+                                        writer.WriteAttributeString("name", type == "rotate" ? "ANGLE" : "TRANSFORM");
+                                        writer.WriteAttributeString("type", "float");
+                                        writer.WriteEndElement(); //param
+                                    }
+                                    writer.WriteEndElement(); //accessor
+                                }
+                                writer.WriteEndElement(); //technique_common
+                            }
+                            writer.WriteEndElement(); //source
+                            #endregion
+
+                            #region In Tangent source
+                            writer.WriteStartElement("source");
+                            writer.WriteAttributeString("id", name + "_inTan");
+                            {
+                                writer.WriteStartElement("float_array");
+                                writer.WriteAttributeString("id", name + "_inTanArr");
+                                writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                {
+                                    first = true;
+                                    for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
+                                    {
+                                        if (first)
+                                            first = false;
+                                        else
+                                            writer.WriteString(" ");
+                                        writer.WriteString(entry._tangent.ToString(CultureInfo.InvariantCulture.NumberFormat));
+                                    }
+                                }
+                                writer.WriteEndElement(); //float_array
+
+                                writer.WriteStartElement("technique_common");
+                                {
+                                    writer.WriteStartElement("accessor");
+                                    writer.WriteAttributeString("source", "#" + name + "_inTanArr");
+                                    writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                    writer.WriteAttributeString("stride", "1");
+                                    {
+                                        writer.WriteStartElement("param");
+                                        writer.WriteAttributeString("name", "IN_TANGENT");
+                                        writer.WriteAttributeString("type", "float");
+                                        writer.WriteEndElement(); //param
+                                    }
+                                    writer.WriteEndElement(); //accessor
+                                }
+                                writer.WriteEndElement(); //technique_common
+                            }
+                            writer.WriteEndElement(); //source
+                            #endregion
+
+                            #region Out Tangent source
+                            writer.WriteStartElement("source");
+                            writer.WriteAttributeString("id", name + "_outTan");
+                            {
+                                writer.WriteStartElement("float_array");
+                                writer.WriteAttributeString("id", name + "_outTanArr");
+                                writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                {
+                                    first = true;
+                                    for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
+                                    {
+                                        if (first)
+                                            first = false;
+                                        else
+                                            writer.WriteString(" ");
+                                        writer.WriteString(entry._tangent.ToString(CultureInfo.InvariantCulture.NumberFormat));
+                                    }
+                                }
+                                writer.WriteEndElement(); //float_array
+
+                                writer.WriteStartElement("technique_common");
+                                {
+                                    writer.WriteStartElement("accessor");
+                                    writer.WriteAttributeString("source", "#" + name + "_outTanArr");
+                                    writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                    writer.WriteAttributeString("stride", "1");
+                                    {
+                                        writer.WriteStartElement("param");
+                                        writer.WriteAttributeString("name", "OUT_TANGENT");
+                                        writer.WriteAttributeString("type", "float");
+                                        writer.WriteEndElement(); //param
+                                    }
+                                    writer.WriteEndElement(); //accessor
+                                }
+                                writer.WriteEndElement(); //technique_common
+                            }
+                            writer.WriteEndElement(); //source
+                            #endregion
+
+                            #region Interpolation source
+                            writer.WriteStartElement("source");
+                            writer.WriteAttributeString("id", name + "_interp");
+                            {
+                                writer.WriteStartElement("Name_array");
+                                writer.WriteAttributeString("id", name + "_interpArr");
+                                writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                {
+                                    first = true;
+                                    for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
+                                    {
+                                        if (first)
+                                            first = false;
+                                        else
+                                            writer.WriteString(" ");
+                                        writer.WriteString("HERMITE");
+                                    }
+                                }
+                                writer.WriteEndElement(); //Name_array
+
+                                writer.WriteStartElement("technique_common");
+                                {
+                                    writer.WriteStartElement("accessor");
+                                    writer.WriteAttributeString("source", "#" + name + "_interpArr");
+                                    writer.WriteAttributeString("count", keyFrameCount.ToString());
+                                    writer.WriteAttributeString("stride", "1");
+                                    {
+                                        writer.WriteStartElement("param");
+                                        writer.WriteAttributeString("name", "INTERPOLATION");
+                                        writer.WriteAttributeString("type", "Name");
+                                        writer.WriteEndElement(); //param
+                                    }
+                                    writer.WriteEndElement(); //accessor
+                                }
+                                writer.WriteEndElement(); //technique_common
+                            }
+                            writer.WriteEndElement(); //source
+                            #endregion
+
+                            #region Sampler
+                            writer.WriteStartElement("sampler");
+                            writer.WriteAttributeString("id", name + "_sampler");
+                            {
+                                writer.WriteStartElement("input");
+                                writer.WriteAttributeString("semantic", "INPUT");
+                                writer.WriteAttributeString("source", "#" + name + "_input");
+                                writer.WriteEndElement(); //input
+
+                                writer.WriteStartElement("input");
+                                writer.WriteAttributeString("semantic", "OUTPUT");
+                                writer.WriteAttributeString("source", "#" + name + "_output");
+                                writer.WriteEndElement(); //input
+
+                                writer.WriteStartElement("input");
+                                writer.WriteAttributeString("semantic", "IN_TANGENT");
+                                writer.WriteAttributeString("source", "#" + name + "_inTan");
+                                writer.WriteEndElement(); //input
+
+                                writer.WriteStartElement("input");
+                                writer.WriteAttributeString("semantic", "OUT_TANGEN");
+                                writer.WriteAttributeString("source", "#" + name + "_outTan");
+                                writer.WriteEndElement(); //input
+
+                                writer.WriteStartElement("input");
+                                writer.WriteAttributeString("semantic", "INTERPOLATION");
+                                writer.WriteAttributeString("source", "#" + name + "_interp");
+                                writer.WriteEndElement(); //input
+                            }
+                            writer.WriteEndElement(); //sampler
+                            #endregion
+
+                            writer.WriteStartElement("channel");
+                            writer.WriteAttributeString("source", "#" + name + "_sampler"); 
+                            
+                            if (type == "rotate")
+                            {
+                                type = String.Format("{0}{1}", type, axis);
+                                axis = "ANGLE";
+                            }
+
+                            writer.WriteAttributeString("target", String.Format("{0}/{1}.{2}", bone, type, axis));
+                            writer.WriteEndElement(); //channel
+                        }
+                        //writer.WriteEndElement(); //animation
+                    }
+                }
+            }
+            writer.WriteEndElement(); //animation
+        }
+
+        public static void Serialize(MDL0Node model, CHR0Node[] animations, float fps, string outFileBase)
+        {
+            model.Populate();
+            model.ApplyCHR(null, 0);
+            var path = new FileInfo(outFileBase);
+            string baseName = path.FullName.Substring(0, path.FullName.Length - path.Extension.Length);
+            
+            foreach (var animation in animations)
+            {
+                string outFile = String.Format("{0}@{1}{2}", baseName, animation.Name, path.Extension);
+
+                using (FileStream stream = new FileStream(outFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
+                using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
+                {
+                    writer.Flush();
+                    stream.Position = 0;
+
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("COLLADA", "http://www.collada.org/2008/03/COLLADASchema");
+                    writer.WriteAttributeString("version", "1.5.0");
+
+                    writer.WriteStartElement("asset");
+                    {
+                        writer.WriteStartElement("contributor");
+                        writer.WriteElementString("authoring_tool", Application.ProductName);
+                        writer.WriteEndElement();
+
+                        writer.WriteStartElement("created");
+                        writer.WriteString(DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture) + "Z");
+                        writer.WriteEndElement();
+
+                        writer.WriteStartElement("modified");
+                        writer.WriteString(DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture) + "Z");
+                        writer.WriteEndElement();
+
+                        writer.WriteStartElement("unit");
+                        writer.WriteAttributeString("meter", "0.01");
+                        writer.WriteAttributeString("name", "centimeter");
+                        writer.WriteEndElement();
+
+                        writer.WriteElementString("up_axis", "Y_UP");
+                    }
+                    writer.WriteEndElement();
+
+                    //Define scenes
+                    writer.WriteStartElement("library_visual_scenes");
+                    {
+                        writer.WriteStartElement("visual_scene");
+                        {
+                            //Attach nodes/bones to scene, starting with TopN
+                            //Specify transform for each node
+                            //Weighted polygons must use instance_controller
+                            //Standard geometry uses instance_geometry
+
+                            writer.WriteAttributeString("id", "RootNode");
+                            writer.WriteAttributeString("name", "RootNode");
+
+                            //Define bones and geometry instances
+                            if (model._boneList != null)
+                                foreach (MDL0BoneNode bone in model._boneList)
+                                    WriteBone(bone, true, writer);
+                        }
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndElement();
+
+                    writer.WriteStartElement("library_animations");
+                    {
+                        WriteAnimation(animation, fps, writer);
+                    }
+                    writer.WriteEndElement(); //library_animatoins
+
+
+
+                    writer.WriteStartElement("scene");
+                    {
+                        writer.WriteStartElement("instance_visual_scene");
+                        writer.WriteAttributeString("url", "#RootNode");
+                        writer.WriteEndElement(); //instance visual scene
+                    }
+                    writer.WriteEndElement(); //scene
+
+                    writer.Close();
+
                 }
             }
         }

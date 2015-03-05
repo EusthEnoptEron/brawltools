@@ -1455,7 +1455,7 @@ namespace BrawlLib.Modeling
         }
 
 
-        public static void WriteAnimation(CHR0Node animation, float fps, XmlWriter writer)
+        private static void WriteAnimation(CHR0Node animation, float fps, XmlWriter writer)
         {
             string[] types = new string[] { "scale", "rotate", "translate" };
             string[] axes = new string[] { "X", "Y", "Z" };
